@@ -2,7 +2,8 @@ import createError, {HttpError} from 'http-errors'
 import express, {Request, Response, NextFunction} from 'express'
 import cookieParser from "cookie-parser";
 import logger from "morgan";
-
+import customerRouter from "./routes/customer";
+import authRouter from "./routes/auth";
 const app = express();
 
 
@@ -11,7 +12,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
  
-app.get('/', (_req, res :Response) => res.json({message:"Welcome"}));
+app.get('/', (_req, res: Response) => res.json({ message: "Welcome" }));
+//Define Routes
+app.use("/api/customers", customerRouter);
+app.use("/api/auth", authRouter);
 // catch 404 and forward to error handler
 app.use(function(_req, _res, next: NextFunction) {
   next(createError(404));
