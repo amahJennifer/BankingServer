@@ -51,9 +51,15 @@ transactionRouter.patch(
 					transactionType: type
 				});
 
-				await transaction.save();
-
-				res.status(200).json({ TransactionDetail: transaction });
+				const newTransaction = await transaction.save();
+				// const userTransactions = await Transaction.find({ customer: req.user });
+				res
+					.status(200)
+					.json({
+						// userTransactions: userTransactions,
+						user: getUser,
+						TransactionDetail: newTransaction
+					});
 
 				return;
 			}
@@ -61,12 +67,12 @@ transactionRouter.patch(
 			if (type === "Debit") {
 				if (getUser.balance < amount) {
 					res.status(404).json({ message: "InSufficient Funds" });
-					
+
 					return;
 				}
 
 				let updateAmount = getUser.balance - amount;
-				
+
 				await Customer.updateOne(
 					{ user: userID },
 					{
@@ -81,10 +87,14 @@ transactionRouter.patch(
 					transactionType: type
 				});
 
-				await debitTransaction.save();
+				const newDebit = await debitTransaction.save();
 
-				res.status(200).json({message :"Amount Debited :"+amount,TransactionDetail:debitTransaction});
-				
+				res.status(200).json({
+					message: "Amount Debited :" + amount,
+					TransactionDetail: newDebit,
+					user: getUser
+				});
+
 				return;
 			}
 

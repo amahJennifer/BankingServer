@@ -7,6 +7,7 @@ import bcrypt from "bcryptjs";
 const authRouter = Router();
 import auth, { IReq } from "../middlewares/auth";
 import User from "../models/customer";
+import { sendMail } from "../mailergun";
 //@route  post /api/auth
 //@desc   Authenticate User and get Token
 //access Private
@@ -78,5 +79,11 @@ authRouter.get("/auth", auth, async (req: IReq, res: Response) => {
 		return;
 	}
 });
+
+authRouter.post('/mail', (_req, res) => {
+	const mail = sendMail()
+	res.status(200).json({mail, msg: 'sent'});
+	return;
+})
 
 export default authRouter;
