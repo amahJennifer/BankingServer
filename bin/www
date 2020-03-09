@@ -8,10 +8,19 @@
 var app = require("../dist/app").default;
 var debug = require("debug")("investserver:server");
 var http = require("http");
-
+var mongoose = require("mongoose");
+require("dotenv").config();
 /**
  * Get port from environment and store in Express.
  */
+
+mongoose
+	.connect(process.env.MONGODB_URI, {
+		useNewUrlParser: true,
+		useUnifiedTopology: true
+	})
+	.then(() => console.log("DB is connected"))
+	.catch(err => console.log(err));
 
 var port = normalizePort(process.env.PORT || "3006");
 app.set("port", port);

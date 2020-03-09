@@ -1,25 +1,13 @@
 import createError, { HttpError } from "http-errors";
 import express, { Request, Response, NextFunction } from "express";
 import cookieParser from "cookie-parser";
-import mongoose from "mongoose";
 import cors from "cors";
 import logger from "morgan";
 
 import customerRouter from "./routes/customer";
 import transactionRouter from "./routes/transactions";
 import authRouter from "./routes/auth";
-// import customerRouter from "./routes/customer";
-// import authRouter from "./routes/auth";
 const app = express();
-
-//connect database
-mongoose
-	.connect("mongodb://localhost:27017/contactDB", {
-		useNewUrlParser: true,
-		useUnifiedTopology: true
-	})
-	.then(() => console.log("DB is connected"))
-	.catch(err => console.log(err));
 
 app.use(cors());
 app.use(logger("dev"));
