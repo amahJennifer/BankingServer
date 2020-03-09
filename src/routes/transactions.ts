@@ -113,11 +113,15 @@ transactionRouter.get(
 	"/transactions",
 	auth,
 	async (req: IReq, res: Response) => {
-		const user_id = req.user!.id;
+		const user_id = req.user;
 		try {
-			const getUserTransactions = await Transaction.findOne({
+		
+			const getUserTransactions = await Transaction.find({
 				customer: user_id
 			});
+			if (!getUserTransactions) {
+				res.status(404).json({Error:"User not found"})
+			}
 			res.status(200).json({ Customer_Transactions: getUserTransactions });
 		} catch (err) {
 			console.error(err.message);
@@ -143,9 +147,9 @@ transactionRouter.post(
 		const { accountNo, amount, type } = req.body;
 
 		try {
-			const user_id = req.user!.id;
+			const user_id = req.user;
 			const getUser = await Customer.findOne({ _id: user_id });
-			const getReceiver = await Customer.findOne({ _id: accountNo });
+			const getReceiver = await Customer.findOne({accountNumber: accountNo });
 			if (!getReceiver) {
 				res.status(404).json({ err: "Receiver Not Found" });
 			}
@@ -154,7 +158,7 @@ transactionRouter.post(
 
 				return;
 			}
-			if (type === "Credit") {
+			if (type === "Transfer") {
 				if (getUser.balance < amount) {
 					res.status(404).json({ err: "Insufficient Fund" });
 					return;
@@ -170,7 +174,7 @@ transactionRouter.post(
 					}
 				);
 				await Customer.updateOne(
-					{ _id: accountNo },
+					{accountNumber: accountNo },
 					{
 						balance: creditAmount
 					}
@@ -182,7 +186,7 @@ transactionRouter.post(
 					transactionType: type
 				});
 				let receiverTransaction = new Transaction({
-					customer: accountNo,
+					customer:getReceiver?._id,
 					amount: amount,
 					balance: creditAmount,
 					transactionType: type
@@ -190,8 +194,7 @@ transactionRouter.post(
 
 				await senderTransaction.save();
 				await receiverTransaction.save();
-				res.status(200).json({ TransactionDetail: senderTransaction });
-				res.status(200).json({ TransactionDetail: senderTransaction });
+				res.status(200).json({userTransactions: senderTransaction,receiverTransaction:receiverTransaction });
 				return;
 			}
 		} catch (err) {

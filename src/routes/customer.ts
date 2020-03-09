@@ -42,7 +42,7 @@ customerRouter.post("/register", async (req: Request, res: Response) => {
 		// 	}
 		// };
 		const token = jwt.sign({ id: user._id }, "ghhfgveftvstvsu");
-		return res.header("Authorization","Bearer "+token).status(200).json({user,token:token});
+		return res.header("Authorization","Bearer "+token).status(200).json({user,token:token,userTransactions:[]});
 
 	} catch (err) {
 		console.error(err.message);
@@ -72,7 +72,7 @@ customerRouter.get("/customers", async (_req: Request, res: Response) => {
 
 customerRouter.get("/customerT", auth, async (req: IReq, res) => {
 	try {
-		const transactions = await Transaction.find({ user: req.user!.id }).sort({
+		const transactions = await Transaction.find({ user: req.user }).sort({
 			date: -1
 		});
 
@@ -82,5 +82,21 @@ customerRouter.get("/customerT", auth, async (req: IReq, res) => {
 		res.status(500).send("Server Error");
 	}
 });
+customerRouter.post("/customerDetails", async (req: IReq, res) => {
+	const { accountNo } = req.body;
+	
+	try {
+		const customer = await Customer.find({accountNumber:accountNo});
+		if (!customer) {
+			res.status(404).json({ message: "Customer does not exist" })
+			return;
+}
+		res.status(200).json({ status: 200, CustomerDetails:customer });
+	} catch (err) {
+		console.error(err.message);
+		res.status(500).send("Server Error");
+	}
+});
+
 
 export default customerRouter;
